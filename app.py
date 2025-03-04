@@ -79,15 +79,15 @@ def display_metrics_and_table(df):
                 'font-family': 'monospace'
             })
             .set_table_styles([
-                {'selector': 'th', 'props': [('min-width', '100px'), ('max-width', '200px')]},
+                {'selector': 'th', 'props': [('min-width', '100px'), ('max-width', '200px'), ('text-align', 'right')]},
                 {'selector': 'td', 'props': [('min-width', '100px'), ('max-width', '200px')]},
                 {'selector': 'th.col_heading', 'props': [('text-align', 'right')]},
                 {'selector': 'th.row_heading', 'props': [('text-align', 'right')]},
                 {'selector': 'th.index_name', 'props': [('text-align', 'right')]},
                 {'selector': '', 'props': [('width', '100%')]}
             ]),
-            width=1200,  # Overall table width
-            height=600   # Overall table height
+            width=1200,
+            height=600
         )
 
     except Exception as e:
