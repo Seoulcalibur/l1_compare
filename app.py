@@ -157,18 +157,18 @@ def get_sample_data():
 def main():
     # Set page config
     st.set_page_config(
-        page_title="Blockchain Tx Fee Comparison",
+        page_title="Cross-chain Analysis",
         page_icon="📊",
         layout="wide"
     )
 
     # Add title
-    st.title("📊 Blockchain Tx Fee Comparison")
+    st.title("📊 Cross-chain Analysis")
 
     # Create tabs
     tab_icons = {
-        "L1 Transactions": "🏠",
-        "L1 Fees": "🔒"
+        "Transaction Fees": "⛽️",
+        "Transaction Count": "📈"
     }
 
     tabs = st.tabs([f"{tab_icons[tab]} {tab}" for tab in tab_icons.keys()])
@@ -184,7 +184,7 @@ def main():
                     access_key='AWS_ACCESS_KEY',
                     secret_key='AWS_SECRET_KEY',
                     bucket='seoulcalibur',  # Your bucket name
-                    validator_file='dune_query_4667263.json'  # File name for validator data
+                    validator_file='dune_query_4667263.json'  # File name for Transaction Fees
                 )
 
             # Try different ways to get the data
@@ -211,14 +211,14 @@ def main():
         st.warning("No data available for the selected filters.")
         return
 
-    # Tab 1: L1 Transactions
+    # Tab 1: Transaction Fees
     with tabs[0]:
-        st.header("L1 Transaction Fees")
+        st.header("Transaction Fees")
 
         try:
             # Create and display chart
             fig = create_gas_fees_chart(filtered_df)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True, key="fees_chart")
 
             # Display metrics and table
             display_metrics_and_table(filtered_df)
@@ -226,20 +226,21 @@ def main():
         except Exception as e:
             st.error(f"Error in L1 Transactions tab: {str(e)}")
 
-    # Tab 2: L1 Fees (same content as placeholder)
+    # Tab 2: Transaction Counts
     with tabs[1]:
-        st.header("L1 Gas Fees")
+        st.header("Transaction Counts")
 
         try:
             # Create and display the same chart for now
             fig = create_gas_fees_chart(filtered_df)
-            st.plotly_chart(fig, use_container_width=True)
+            t.plotly_chart(fig, use_container_width=True, key="counts_chart")
 
             # Display metrics and table
             display_metrics_and_table(filtered_df)
 
         except Exception as e:
             st.error(f"Error in L1 Fees tab: {str(e)}")
+    
 
 
 if __name__ == '__main__':
