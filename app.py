@@ -5,7 +5,7 @@ import warnings
 import data # Import functions from data.py
 warnings.filterwarnings('ignore')
 
-def create_tx_fees_chart(df, chart_type):
+def create_gas_fees_chart(df, chart_type):
     """Gas Fee Chart"""
     # Custom color for each chain
     color_map = {
@@ -16,37 +16,59 @@ def create_tx_fees_chart(df, chart_type):
         'TRX': '#FF0013',  
         'SOL': '#14F195' 
     }
-
-    title = 'Monthly Gas Fees by Blockchain'
-    y_axis_title = 'Tx Fees'
     
+    # Handle relative (percentage) chart type
     if chart_type == "relative":
-        title = 'Tx Fees by Blockchain (Percentage)'
-        y_axis_title = 'Percentage (%)'
-    
-    fig = px.bar(
-        df,
-        x='month',
-        y='gas_fees',
-        color='category',
-        title=title,
-        color_discrete_map=color_map,  # Add custom colors
-        labels={'month': 'Month', 'gas_fees': 'Gas Fees', 'category': 'Blockchain'}
-    )
-
-    fig.update_layout(
-        barmode=chart_type,
-        xaxis_tickformat='%Y-%m',
-        yaxis_title=y_axis_title,
-        legend_title='Blockchain',
-        height=600
-    )
-
-    if chart_type == "relative":
+        # Create a copy to avoid modifying original data
+        plot_df = df.copy()
+        
+        # Calculate percentage for each group
+        monthly_totals = plot_df.groupby('month')['gas_fees'].transform('sum')
+        plot_df['percentage'] = plot_df['gas_fees'] / monthly_totals
+        
+        # Create chart with percentage data
+        fig = px.bar(
+            plot_df,
+            x='month',
+            y='percentage',  # Use calculated percentages
+            color='category',
+            title='Tx Fees by Blockchain (Percentage)',
+            color_discrete_map=color_map,
+            labels={'month': 'Month', 'percentage': 'Percentage', 'category': 'Blockchain'}
+        )
+        
+        # Stack the bars
+        fig.update_layout(
+            barmode='stack',  # Use stack with normalized data
+            xaxis_tickformat='%Y-%m',
+            yaxis_title='Percentage (%)',
+            legend_title='Blockchain',
+            height=600
+        )
+        
+        # Format y-axis as percentage
         fig.update_yaxes(tickformat=".0%")
+    else:
+        # Original absolute value chart
+        fig = px.bar(
+            df,
+            x='month',
+            y='gas_fees',
+            color='category',
+            title='Monthly Gas Fees by Blockchain',
+            color_discrete_map=color_map,
+            labels={'month': 'Month', 'gas_fees': 'Gas Fees', 'category': 'Blockchain'}
+        )
+        
+        fig.update_layout(
+            barmode='stack',
+            xaxis_tickformat='%Y-%m',
+            yaxis_title='Gas Fees',
+            legend_title='Blockchain',
+            height=600
+        )
     
     return fig
-
 
 def display_metrics_and_table(df):
     """Gas Fee Table & Metrics"""
