@@ -82,12 +82,12 @@ def display_metrics_and_table(df):
                 {'selector': 'th', 'props': [('min-width', '100px'), ('max-width', '200px')]},
                 {'selector': 'td', 'props': [('min-width', '100px'), ('max-width', '200px')]},
                 {'selector': 'th.col_heading', 'props': [('text-align', 'right')]},
-                {'selector': 'th.row_heading', 'props': [('text-align', 'right')]}, 
-                {'selector': 'th.index_name', 'props': [('text-align', 'right')]}, 
+                {'selector': 'th.row_heading', 'props': [('text-align', 'right')]},
+                {'selector': 'th.index_name', 'props': [('text-align', 'right')]},
                 {'selector': '', 'props': [('width', '100%')]}
-            ])
+            ]),
             width=1200,  # Overall table width
-            height=600  # Overall table height
+            height=600   # Overall table height
         )
 
     except Exception as e:
