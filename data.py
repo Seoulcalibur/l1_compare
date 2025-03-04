@@ -206,7 +206,7 @@ if __name__ == "__main__":
     # Replace these with your actual AWS credentials
     success = initialize_aws(
         access_key='AKIA4VDBL6PDTANLJJRC',
-        secret_key='iy5VrSjM+Tt2USoK0QDPoOEua7rL5xTHZtVBA+/e',
+        secret_key=AWS_SECRET_KEY,
         bucket='seoulcalibur',
         validator_file='dune_query_4667263.json'
     )
