@@ -251,7 +251,11 @@ def main():
         try:
             # Create and display chart
             fig = create_tx_fees_chart(filtered_df, "stack")
-            st.plotly_chart(fig, use_container_width=True, key="fees_chart")
+            st.plotly_chart(fig, use_container_width=True, key="tx_fees_stack")
+
+            # Add Percentage Chart
+            fig = create_tx_fees_chart(filtered_df, "relative")
+            st.plotly_chart(fig, use_container_width=True, key="tx_fees_relative")
 
             # Display metrics and table
             display_metrics_and_table(filtered_df)
