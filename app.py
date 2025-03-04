@@ -188,10 +188,14 @@ def main():
         with st.spinner('Fetching data...'):
             # Check if these functions exist in your data.py module
             # and use the ones that match your actual implementation
-
-            # Try different function names that might be in your data.py
             if hasattr(data, 'initialize_aws'):
-                data.initialize_aws()
+            # Pass your AWS credentials directly
+                data.initialize_aws(
+                    access_key='YOUR_ACCESS_KEY_ID',
+                    secret_key='YOUR_SECRET_ACCESS_KEY',
+                    bucket='seoulcalibur',  # Your bucket name
+                    validator_file='dune_query_4667263.json'  # File name for validator data
+                )
 
             # Try different ways to get the data
             if hasattr(data, 'fetch_tx_fee'):
