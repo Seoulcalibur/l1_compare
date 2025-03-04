@@ -2,22 +2,19 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import warnings
-
+import data # Import functions from data.py
 warnings.filterwarnings('ignore')
 
-# Import functions from data.py
-import data
-
 def create_gas_fees_chart(df):
-    """Create a bar chart of gas fees by blockchain"""
-    # Define custom colors for each blockchain
+    """Gas Fee Chart"""
+    # Custom color for each chain
     color_map = {
-        'ETH': '#716b94',  # Ethereum blue
-        'AVAX': '#E84142',  # Polygon purple
-        'BTC': '#F7931A',  # Arbitrum blue
-        'BNB': '#F3BA2F',  # Optimism red
-        'TRX': '#FF0013',  # Avalanche red
-        'SOL': '#14F195'  # Binance yellow
+        'ETH': '#716b94',  
+        'AVAX': '#E84142',  
+        'BTC': '#F7931A',  
+        'BNB': '#F3BA2F',  
+        'TRX': '#FF0013',  
+        'SOL': '#14F195' 
     }
 
     fig = px.bar(
@@ -27,11 +24,7 @@ def create_gas_fees_chart(df):
         color='category',
         title='Monthly Gas Fees by Blockchain',
         color_discrete_map=color_map,  # Add custom colors
-        labels={
-            'month': 'Month',
-            'gas_fees': 'Gas Fees',
-            'category': 'Blockchain'
-        }
+        labels={'month': 'Month', 'gas_fees': 'Gas Fees', 'category': 'Blockchain'}
     )
 
     fig.update_layout(
@@ -41,20 +34,16 @@ def create_gas_fees_chart(df):
         legend_title='Blockchain',
         height=600
     )
-
     return fig
 
 
 def display_metrics_and_table(df):
-    """Display metrics and data table for the gas fees"""
+    """Gas Fee Table & Metrics"""
     try:
-        # Get total gas fees for each blockchain
-        blockchain_totals = df.groupby('category')['gas_fees'].sum().sort_values(
-            ascending=False)
-
+        # total gas fees for each blockchain
+        blockchain_totals = df.groupby('category')['gas_fees'].sum().sort_values(ascending=False)
         # Create a column for each blockchain (up to the top 3 by total fees)
         cols = st.columns(min(3, len(blockchain_totals)))
-
         # Display metrics for each blockchain
         for idx, (blockchain, total) in enumerate(blockchain_totals.items()):
             if idx < 3:  # Show only top 3 to fit in columns
@@ -65,20 +54,21 @@ def display_metrics_and_table(df):
                     )
 
         # Data table
-        st.subheader("🔍 Monthly Gas Fees by Blockchain")
-
+        st.subheader("Monthly Gas Fees by Blockchain")
         # Pivot the dataframe to show categories as columns
         pivoted_df = df.pivot(
             index='month',
             columns='category',
             values='gas_fees'
         )
-
         # Sort the index by date
         pivoted_df = pivoted_df.sort_index(ascending=False)
 
         # Add a Total column
         pivoted_df['Total'] = pivoted_df.sum(axis=1)
+
+        # Change the index name from "month" to "Month"
+        pivoted_df.index.name = "Month"
 
         # Format and display the table
         st.dataframe(
@@ -91,7 +81,7 @@ def display_metrics_and_table(df):
             .set_table_styles([
                 {'selector': 'th', 'props': [('min-width', '100px'), ('max-width', '200px')]},
                 {'selector': 'td', 'props': [('min-width', '100px'), ('max-width', '200px')]},
-                {'selector': 'th.col_heading', 'props': [('text-align', 'center')]},
+                {'selector': 'th.col_heading', 'props': [('text-align', 'right')]},
                 {'selector': 'th.row_heading', 'props': [('text-align', 'left')]},
                 {'selector': '', 'props': [('width', '100%')]}
             ]),
