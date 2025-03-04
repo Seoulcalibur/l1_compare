@@ -5,7 +5,7 @@ import warnings
 import data # Import functions from data.py
 warnings.filterwarnings('ignore')
 
-def create_gas_fees_chart(df, chart_type):
+def create_tx_fees_chart(df, chart_type):
     """Gas Fee Chart"""
     # Custom color for each chain
     color_map = {
