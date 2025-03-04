@@ -5,7 +5,7 @@ import warnings
 import data # Import functions from data.py
 warnings.filterwarnings('ignore')
 
-def create_gas_fees_chart(df):
+def create_gas_fees_chart(df, chart_type):
     """Gas Fee Chart"""
     # Custom color for each chain
     color_map = {
@@ -28,7 +28,7 @@ def create_gas_fees_chart(df):
     )
 
     fig.update_layout(
-        barmode='stack',
+        barmode=chart_type,
         xaxis_tickformat='%Y-%m',
         yaxis_title='Gas Fees',
         legend_title='Blockchain',
@@ -217,7 +217,7 @@ def main():
 
         try:
             # Create and display chart
-            fig = create_gas_fees_chart(filtered_df)
+            fig = create_gas_fees_chart(filtered_df, "stack")
             st.plotly_chart(fig, use_container_width=True, key="fees_chart")
 
             # Display metrics and table
@@ -232,7 +232,7 @@ def main():
 
         try:
             # Create and display the same chart for now
-            fig = create_gas_fees_chart(filtered_df)
+            fig = create_gas_fees_chart(filtered_df, "relative")
             st.plotly_chart(fig, use_container_width=True, key="counts_chart")
 
             # Display metrics and table
