@@ -191,8 +191,8 @@ def main():
             if hasattr(data, 'initialize_aws'):
             # Pass your AWS credentials directly
                 data.initialize_aws(
-                    access_key='YOUR_ACCESS_KEY_ID',
-                    secret_key='YOUR_SECRET_ACCESS_KEY',
+                    access_key='AWS_ACCESS_KEY',
+                    secret_key='AWS_SECRET_KEY',
                     bucket='seoulcalibur',  # Your bucket name
                     validator_file='dune_query_4667263.json'  # File name for validator data
                 )
