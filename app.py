@@ -233,7 +233,7 @@ def main():
         try:
             # Create and display the same chart for now
             fig = create_gas_fees_chart(filtered_df)
-            t.plotly_chart(fig, use_container_width=True, key="counts_chart")
+            st.plotly_chart(fig, use_container_width=True, key="counts_chart")
 
             # Display metrics and table
             display_metrics_and_table(filtered_df)
