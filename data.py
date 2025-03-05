@@ -4,6 +4,7 @@ import json
 from botocore.exceptions import ClientError
 import logging
 import os
+import streamlit as st 
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -16,7 +17,6 @@ aws_bucket_name = None
 aws_validator_file_name = None
 region_name = None
 s3_client = None
-
 
 def initialize_aws(access_key=None, secret_key=None, bucket=None, validator_file=None, region='us-east-1'):
     """
@@ -210,16 +210,18 @@ if __name__ == "__main__":
     # Example usage
     print("Testing S3 functions...")
 
-    # Replace these with your actual AWS credentials
-    AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY')
-    AWS_SECRET_KEY = os.environ.get('AWS_SECRET_KEY')
-
+   if "aws" in st.secrets:  # <--- CHANGED: Added debugging for secrets
+        print("AWS secrets found in Streamlit configuration")
+    else:
+        print("WARNING: AWS secrets not found in Streamlit configuration")
+    
+    # CHANGED: Using Streamlit secrets directly
     success = initialize_aws(
-    access_key=st.secrets.get("aws", {}).get("access_key"),
-    secret_key=st.secrets.get("aws", {}).get("secret_key"),
-    bucket=st.secrets.get("aws", {}).get("bucket", "seoulcalibur"),
-    validator_file=st.secrets.get("aws", {}).get("validator_file", "dune_query_4667263.json"),
-    region=st.secrets.get("aws", {}).get("region", "us-east-1")
+        access_key=st.secrets.get("aws", {}).get("access_key"),
+        secret_key=st.secrets.get("aws", {}).get("secret_key"),
+        bucket=st.secrets.get("aws", {}).get("bucket", "seoulcalibur"),
+        validator_file=st.secrets.get("aws", {}).get("validator_file", "dune_query_4667263.json"),
+        region=st.secrets.get("aws", {}).get("region", "us-east-1")
     )
 
     if success:
