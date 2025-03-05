@@ -209,13 +209,12 @@ def list_bucket_files(prefix=''):
 if __name__ == "__main__":
     # Example usage
     print("Testing S3 functions...")
-
-   if "aws" in st.secrets:  # <--- CHANGED: Added debugging for secrets
+    
+    if "aws" in st.secrets:  # This line has incorrect indentation
         print("AWS secrets found in Streamlit configuration")
     else:
         print("WARNING: AWS secrets not found in Streamlit configuration")
     
-    # CHANGED: Using Streamlit secrets directly
     success = initialize_aws(
         access_key=st.secrets.get("aws", {}).get("access_key"),
         secret_key=st.secrets.get("aws", {}).get("secret_key"),
