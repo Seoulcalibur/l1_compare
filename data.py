@@ -207,7 +207,7 @@ def list_bucket_files(prefix=''):
 
 # Test the functions if run directly
 if __name__ == "__main__":
-    # Example usage
+    # Example usage test
     print("Testing S3 functions...")
     
     if "aws" in st.secrets:  # This line has incorrect indentation
