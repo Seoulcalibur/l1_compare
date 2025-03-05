@@ -32,8 +32,8 @@ def initialize_aws(access_key=None, secret_key=None, bucket=None, validator_file
     global aws_access_key_id, aws_secret_access_key, aws_bucket_name, aws_validator_file_name, region_name, s3_client
 
     # First try to use provided parameters
-    aws_access_key_id = access_key or os.environ.get('AWS_ACCESS_KEY_ID')
-    aws_secret_access_key = secret_key or os.environ.get('AWS_SECRET_ACCESS_KEY')
+    aws_access_key_id = access_key or os.environ.get('AWS_ACCESS_KEY')
+    aws_secret_access_key = secret_key or os.environ.get('AWS_SECRET_KEY')
     aws_bucket_name = bucket or os.environ.get('AWS_BUCKET_NAME')
     aws_validator_file_name = validator_file or os.environ.get('AWS_VALIDATOR_FILE_NAME')
     region_name = region or os.environ.get('AWS_REGION_NAME', 'us-east-1')
