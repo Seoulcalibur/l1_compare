@@ -206,13 +206,14 @@ if __name__ == "__main__":
     # Replace these with your actual AWS credentials
     AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY')
     AWS_SECRET_KEY = os.environ.get('AWS_SECRET_KEY')
+
     success = initialize_aws(
-        access_key=AWS_ACCESS_KEY,
-        secret_key=AWS_SECRET_KEY,
-        bucket='seoulcalibur',
-        validator_file='dune_query_4667263.json',
-          region='us-east-2'
-)
+    access_key=st.secrets.get("aws", {}).get("access_key"),
+    secret_key=st.secrets.get("aws", {}).get("secret_key"),
+    bucket=st.secrets.get("aws", {}).get("bucket", "seoulcalibur"),
+    validator_file=st.secrets.get("aws", {}).get("validator_file", "dune_query_4667263.json"),
+    region=st.secrets.get("aws", {}).get("region", "us-east-1")
+    )
 
     if success:
         # List files in the bucket
