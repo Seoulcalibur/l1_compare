@@ -204,12 +204,14 @@ if __name__ == "__main__":
     print("Testing S3 functions...")
 
     # Replace these with your actual AWS credentials
+    AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY')
+    AWS_SECRET_KEY = os.environ.get('AWS_SECRET_KEY')
     success = initialize_aws(
         access_key=AWS_ACCESS_KEY,
         secret_key=AWS_SECRET_KEY,
         bucket='seoulcalibur',
         validator_file='dune_query_4667263.json'
-    )
+)
 
     if success:
         # List files in the bucket
