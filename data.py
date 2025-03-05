@@ -210,7 +210,8 @@ if __name__ == "__main__":
         access_key=AWS_ACCESS_KEY,
         secret_key=AWS_SECRET_KEY,
         bucket='seoulcalibur',
-        validator_file='dune_query_4667263.json'
+        validator_file='dune_query_4667263.json',
+          region='us-east-2'
 )
 
     if success:
