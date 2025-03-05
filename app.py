@@ -217,7 +217,7 @@ def main():
                     access_key='AWS_ACCESS_KEY',
                     secret_key='AWS_SECRET_KEY',
                     bucket='seoulcalibur',  # Your bucket name
-                    validator_file='dune_query_4667263.json'  # File name for Transaction Fees
+                    validator_file='DUNE_QUERY_4667263.json'  # File name for Transaction Fees
                 )
 
             # Try different ways to get the data
