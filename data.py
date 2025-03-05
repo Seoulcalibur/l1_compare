@@ -38,6 +38,13 @@ def initialize_aws(access_key=None, secret_key=None, bucket=None, validator_file
     aws_validator_file_name = validator_file or os.environ.get('AWS_VALIDATOR_FILE_NAME')
     region_name = region or os.environ.get('AWS_REGION_NAME', 'us-east-1')
 
+    if "aws" in st.secrets:
+        st.write("AWS secrets found!")
+        # Don't print actual keys in production
+        st.write(f"Access key starts with: {st.secrets['aws']['access_key'][:4]}...")
+    else:
+        st.error("AWS secrets not found in Streamlit configuration")
+
     # Check if we have the required credentials
     if not aws_access_key_id or not aws_secret_access_key or not aws_bucket_name:
         logger.warning("Missing AWS credentials. Please provide them as parameters or set environment variables.")
