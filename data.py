@@ -4,7 +4,7 @@ import json
 from botocore.exceptions import ClientError
 import logging
 import os
-import streamlit as st 
+import streamlit as st
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -18,9 +18,10 @@ aws_validator_file_name = None
 region_name = None
 s3_client = None
 
+
 def initialize_aws(access_key=None, secret_key=None, bucket=None, validator_file=None, region='us-east-1'):
     """
-    Initialize AWS configuration from provided parameters or environment variables
+    Initialize AWS configuration from provided parameters, Streamlit secrets, or environment variables
 
     Args:
         access_key (str, optional): AWS access key ID
@@ -31,23 +32,21 @@ def initialize_aws(access_key=None, secret_key=None, bucket=None, validator_file
     """
     global aws_access_key_id, aws_secret_access_key, aws_bucket_name, aws_validator_file_name, region_name, s3_client
 
-    # First try to use provided parameters
-    aws_access_key_id = access_key or os.environ.get('AWS_ACCESS_KEY')
-    aws_secret_access_key = secret_key or os.environ.get('AWS_SECRET_KEY')
-    aws_bucket_name = bucket or os.environ.get('AWS_BUCKET_NAME')
-    aws_validator_file_name = validator_file or os.environ.get('AWS_VALIDATOR_FILE_NAME')
-    region_name = region or os.environ.get('AWS_REGION_NAME', 'us-east-1')
-
+    # Get credentials with priority: 1) function parameters 2) Streamlit secrets 3) environment variables
     if "aws" in st.secrets:
-        st.write("AWS secrets found!")
-        # Don't print actual keys in production
-        st.write(f"Access key starts with: {st.secrets['aws']['access_key'][:4]}...")
-    else:
-        st.error("AWS secrets not found in Streamlit configuration")
+        aws_access_key_id = access_key or st.secrets["aws"]["access_key_id"] or os.environ.get('AWS_ACCESS_KEY')
+        aws_secret_access_key = secret_key or st.secrets["aws"]["secret_access_key"] or os.environ.get('AWS_SECRET_KEY')
+        aws_bucket_name = bucket or st.secrets["aws"].get("bucket_name") or os.environ.get('AWS_BUCKET_NAME')
+        aws_validator_file_name = validator_file or st.secrets["aws"].get("validator_file_name") or os.environ.get(
+            'AWS_VALIDATOR_FILE_NAME')
+        region_name = region or st.secrets["aws"].get("region_name") or os.environ.get('AWS_REGION_NAME', 'us-east-1')
+
+    if not aws_access_key_id or not aws_secret_access_key:
+        logger.warning("AWS secrets not found in Streamlit configuration or environment variables")
 
     # Check if we have the required credentials
     if not aws_access_key_id or not aws_secret_access_key or not aws_bucket_name:
-        logger.warning("Missing AWS credentials. Please provide them as parameters or set environment variables.")
+        logger.warning("Missing required AWS credentials.")
         return False
 
     # Initialize S3 client
@@ -96,6 +95,7 @@ def fetch_s3_object(file_name):
         logger.error(f"Unexpected error retrieving file from S3: {e}")
         return None
 
+
 def fetch_json_data(file_name=None):
     """
     Fetch and parse JSON data from S3
@@ -127,6 +127,7 @@ def fetch_json_data(file_name=None):
             return None
     return None
 
+
 def fetch_csv_data(file_name):
     """
     Fetch and parse CSV data from S3
@@ -151,6 +152,7 @@ def fetch_csv_data(file_name):
             logger.error(f"Error parsing CSV data: {e}")
             return None
     return None
+
 
 def fetch_tx_fee():
     """
@@ -182,6 +184,7 @@ def fetch_tx_fee():
         logger.error(f"Error processing transaction fee data: {e}")
         return None
 
+
 def list_bucket_files(prefix=''):
     """
     List all files in the S3 bucket with an optional prefix
@@ -205,23 +208,16 @@ def list_bucket_files(prefix=''):
         logger.error(f"Error listing bucket files: {e}")
         return None
 
+
 # Test the functions if run directly
 if __name__ == "__main__":
     # Example usage test
     print("Testing S3 functions...")
-    
+
     if "aws" in st.secrets:  # This line has incorrect indentation
         print("AWS secrets found in Streamlit configuration")
     else:
         print("WARNING: AWS secrets not found in Streamlit configuration")
-    
-    success = initialize_aws(
-        access_key=st.secrets.get("aws", {}).get("access_key"),
-        secret_key=st.secrets.get("aws", {}).get("secret_key"),
-        bucket=st.secrets.get("aws", {}).get("bucket", "seoulcalibur"),
-        validator_file=st.secrets.get("aws", {}).get("validator_file", "dune_query_4667263.json"),
-        region=st.secrets.get("aws", {}).get("region", "us-east-1")
-    )
 
     if success:
         # List files in the bucket
