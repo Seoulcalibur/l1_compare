@@ -2,81 +2,59 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import warnings
-import data # Import functions from data.py
+
 warnings.filterwarnings('ignore')
 
-def create_tx_fees_chart(df, chart_type):
-    """Gas Fee Chart"""
-    # Custom color for each chain
+# Import functions from data.py
+import data
+
+def create_gas_fees_chart(df):
+    """Create a bar chart of gas fees by blockchain"""
+    # Define custom colors for each blockchain
     color_map = {
-        'ETH': '#716b94',  
-        'AVAX': '#E84142',  
-        'BTC': '#F7931A',  
-        'BNB': '#F3BA2F',  
-        'TRX': '#FF0013',  
-        'SOL': '#14F195' 
+        'ETH': '#716b94',  # Ethereum blue
+        'AVAX': '#E84142',  # Polygon purple
+        'BTC': '#F7931A',  # Arbitrum blue
+        'BNB': '#F3BA2F',  # Optimism red
+        'TRX': '#FF0013',  # Avalanche red
+        'SOL': '#14F195'  # Binance yellow
     }
-    
-    # Handle relative (percentage) chart type
-    if chart_type == "relative":
-        # Create a copy to avoid modifying original data
-        plot_df = df.copy()
-        
-        # Calculate percentage for each group
-        monthly_totals = plot_df.groupby('month')['gas_fees'].transform('sum')
-        plot_df['percentage'] = plot_df['gas_fees'] / monthly_totals
-        
-        # Create chart with percentage data
-        fig = px.bar(
-            plot_df,
-            x='month',
-            y='percentage',  # Use calculated percentages
-            color='category',
-            title='Tx Fees by Blockchain (Percentage)',
-            color_discrete_map=color_map,
-            labels={'month': 'Month', 'percentage': 'Percentage', 'category': 'Blockchain'}
-        )
-        
-        # Stack the bars
-        fig.update_layout(
-            barmode='stack',  # Use stack with normalized data
-            xaxis_tickformat='%Y-%m',
-            yaxis_title='Percentage (%)',
-            legend_title='Blockchain',
-            height=600
-        )
-        
-        # Format y-axis as percentage
-        fig.update_yaxes(tickformat=".0%")
-    else:
-        # Original absolute value chart
-        fig = px.bar(
-            df,
-            x='month',
-            y='gas_fees',
-            color='category',
-            title='Monthly Gas Fees by Blockchain',
-            color_discrete_map=color_map,
-            labels={'month': 'Month', 'gas_fees': 'Gas Fees', 'category': 'Blockchain'}
-        )
-        
-        fig.update_layout(
-            barmode='stack',
-            xaxis_tickformat='%Y-%m',
-            yaxis_title='Gas Fees',
-            legend_title='Blockchain',
-            height=600
-        )
-    
+
+    fig = px.bar(
+        df,
+        x='month',
+        y='gas_fees',
+        color='category',
+        title='Monthly Gas Fees by Blockchain',
+        color_discrete_map=color_map,  # Add custom colors
+        labels={
+            'month': 'Month',
+            'gas_fees': 'Gas Fees',
+            'category': 'Blockchain'
+        }
+    )
+
+    fig.update_layout(
+        barmode='stack',
+        xaxis_tickformat='%Y-%m',
+        yaxis_title='Gas Fees',
+        legend_title='Blockchain',
+        height=600
+    )
+
     return fig
 
+
 def display_metrics_and_table(df):
-    """Gas Fee Table & Metrics"""
+    """Display metrics and data table for the gas fees"""
     try:
-        # total gas fees for each blockchain
-        blockchain_totals = df.groupby('category')['gas_fees'].sum().sort_values(ascending=False)
+        # Get total gas fees for each blockchain
+        blockchain_totals = df.groupby('category')['gas_fees'].sum().sort_values(
+            ascending=False)
+
         # Create a column for each blockchain (up to the top 3 by total fees)
         cols = st.columns(min(3, len(blockchain_totals)))
+
         # Display metrics for each blockchain
         for idx, (blockchain, total) in enumerate(blockchain_totals.items()):
             if idx < 3:  # Show only top 3 to fit in columns
@@ -87,21 +65,20 @@ def display_metrics_and_table(df):
                     )
 
         # Data table
-        st.subheader("Monthly Gas Fees by Blockchain")
+        st.subheader("🔍 Monthly Gas Fees by Blockchain")
+
         # Pivot the dataframe to show categories as columns
         pivoted_df = df.pivot(
             index='month',
             columns='category',
             values='gas_fees'
         )
+
         # Sort the index by date
         pivoted_df = pivoted_df.sort_index(ascending=False)
 
         # Add a Total column
         pivoted_df['Total'] = pivoted_df.sum(axis=1)
-
-        # Change the index name from "month" to "Month"
-        pivoted_df.index.name = "Month"
 
         # Format and display the table
         st.dataframe(
@@ -114,7 +91,7 @@ def display_metrics_and_table(df):
             .set_table_styles([
                 {'selector': 'th', 'props': [('min-width', '100px'), ('max-width', '200px')]},
                 {'selector': 'td', 'props': [('min-width', '100px'), ('max-width', '200px')]},
-                {'selector': 'th.col_heading', 'props': [('text-align', 'right')]},
+                {'selector': 'th.col_heading', 'props': [('text-align', 'center')]},
                 {'selector': 'th.row_heading', 'props': [('text-align', 'left')]},
                 {'selector': '', 'props': [('width', '100%')]}
             ]),
@@ -190,18 +167,18 @@ def get_sample_data():
 def main():
     # Set page config
     st.set_page_config(
-        page_title="Cross-chain Analysis",
+        page_title="Blockchain Tx Fee Comparison",
         page_icon="📊",
         layout="wide"
     )
 
     # Add title
-    st.title("📊 Cross-chain Analysis")
+    st.title("📊 Blockchain Tx Fee Comparison")
 
     # Create tabs
     tab_icons = {
-        "Transaction Fees": "⛽️",
-        "Transaction Count": "📈"
+        "L1 Transactions": "🏠",
+        "L1 Fees": "🔒"
     }
 
     tabs = st.tabs([f"{tab_icons[tab]} {tab}" for tab in tab_icons.keys()])
@@ -211,14 +188,10 @@ def main():
         with st.spinner('Fetching data...'):
             # Check if these functions exist in your data.py module
             # and use the ones that match your actual implementation
+
+            # Try different function names that might be in your data.py
             if hasattr(data, 'initialize_aws'):
-            # Pass your AWS credentials directly
-                data.initialize_aws(
-                    access_key='AWS_ACCESS_KEY',
-                    secret_key='AWS_SECRET_KEY',
-                    bucket='seoulcalibur',  # Your bucket name
-                    validator_file='DUNE_QUERY_4667263.json'  # File name for Transaction Fees
-                )
+                data.initialize_aws()
 
             # Try different ways to get the data
             if hasattr(data, 'fetch_tx_fee'):
@@ -244,18 +217,14 @@ def main():
         st.warning("No data available for the selected filters.")
         return
 
-    # Tab 1: Transaction Fees
+    # Tab 1: L1 Transactions
     with tabs[0]:
-        st.header("Transaction Fees")
+        st.header("L1 Transaction Fees")
 
         try:
             # Create and display chart
-            fig = create_tx_fees_chart(filtered_df, "stack")
-            st.plotly_chart(fig, use_container_width=True, key="tx_fees_stack")
-
-            # Add Percentage Chart
-            fig = create_tx_fees_chart(filtered_df, "relative")
-            st.plotly_chart(fig, use_container_width=True, key="tx_fees_relative")
+            fig = create_gas_fees_chart(filtered_df)
+            st.plotly_chart(fig, use_container_width=True)
 
             # Display metrics and table
             display_metrics_and_table(filtered_df)
@@ -263,21 +232,20 @@ def main():
         except Exception as e:
             st.error(f"Error in L1 Transactions tab: {str(e)}")
 
-    # Tab 2: Transaction Counts
+    # Tab 2: L1 Fees (same content as placeholder)
     with tabs[1]:
-        st.header("Transaction Counts")
+        st.header("L1 Gas Fees")
 
         try:
             # Create and display the same chart for now
-            fig = create_tx_fees_chart(filtered_df, "relative")
-            st.plotly_chart(fig, use_container_width=True, key="counts_chart")
+            fig = create_gas_fees_chart(filtered_df)
+            st.plotly_chart(fig, use_container_width=True)
 
             # Display metrics and table
             display_metrics_and_table(filtered_df)
 
         except Exception as e:
             st.error(f"Error in L1 Fees tab: {str(e)}")
-    
 
 
 if __name__ == '__main__':
