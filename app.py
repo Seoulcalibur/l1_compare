@@ -34,6 +34,13 @@ def create_transaction_fees_chart_stack(df):
         }
     )
 
+    fig.update_traces(
+    hovertemplate='<b>Blockchain</b>: %{customdata}<br>' +
+                   '<b>Month</b>: %{x|%b %Y}<br>' +
+                   '<b>Percentage of Gas Fees</b>: %{y:.2f}%<extra></extra>',
+    customdata=df_pct['category']
+    )
+
     fig.update_layout(
         barmode='stack',
         xaxis_tickformat='%Y-%m',
