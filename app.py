@@ -109,7 +109,7 @@ def create_transaction_fees_chart_relative(df):
     
     return fig
 
-def display_metrics_and_table(df):
+def display_metrics_and_table_transaction_fees(df):
     """Display metrics and data table for the gas fees"""
     try:
         # Get total gas fees for each blockchain
@@ -143,6 +143,9 @@ def display_metrics_and_table(df):
         # Add a Total column
         pivoted_df['Total'] = pivoted_df.sum(axis=1)
 
+        # Rename the index to have proper capitalization
+        pivoted_df.index.name = 'Month'
+
         # Format and display the table
         st.dataframe(
             pivoted_df.style
@@ -154,8 +157,8 @@ def display_metrics_and_table(df):
             .set_table_styles([
                 {'selector': 'th', 'props': [('min-width', '100px'), ('max-width', '200px')]},
                 {'selector': 'td', 'props': [('min-width', '100px'), ('max-width', '200px')]},
-                {'selector': 'th.col_heading', 'props': [('text-align', 'center')]},
-                {'selector': 'th.row_heading', 'props': [('text-align', 'left')]},
+                {'selector': 'th.col_heading', 'props': [('text-align', 'right')]}, 
+                {'selector': 'th.row_heading', 'props': [('text-align', 'left')]},   
                 {'selector': '', 'props': [('width', '100%')]}
             ]),
             width=1200,  # Overall table width
@@ -164,7 +167,6 @@ def display_metrics_and_table(df):
 
     except Exception as e:
         st.error(f"Error displaying statistics: {str(e)}")
-
 
 def apply_filters(df):
     """Apply user-selected filters to the dataframe"""
@@ -236,7 +238,7 @@ def main():
     )
 
     # Add title
-    st.title("📊 Blockchain Comparison Analysis2")
+    st.title("📊 Blockchain Comparison Analysis")
 
     # Create tabs
     tab_icons = {
@@ -279,9 +281,9 @@ def main():
         st.warning("No data available for the selected filters.")
         return
 
-    # Tab 1: L1 Transactions
+    # Tab 1: L1 Transaction Fees
     with tabs[0]:
-        st.header("L1 Transaction Fees")
+        st.header("⛽ L1 Transaction Fees")
 
         try:
             # Create container with custom padding
@@ -299,7 +301,7 @@ def main():
                 st.plotly_chart(fig, use_container_width=True, key="transaction_fee_relative")
 
                 # Display metrics and table
-                display_metrics_and_table(filtered_df)
+                display_metrics_and_table_transaction_fees(filtered_df)
 
         except Exception as e:
             st.error(f"Error in L1 Transactions tab: {str(e)}")
@@ -314,7 +316,7 @@ def main():
             st.plotly_chart(fig, use_container_width=True, key="transaction_fee_relative")
 
             # Display metrics and table
-            display_metrics_and_table(filtered_df)
+            display_metrics_and_table_transaction_fees(filtered_df)
 
         except Exception as e:
             st.error(f"Error in L1 Fees tab: {str(e)}")
