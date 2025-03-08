@@ -45,7 +45,7 @@ def create_transaction_fees_chart_stack(df):
     return fig
 
 def create_transaction_fees_chart_relative(df):
-    """Create a bar chart of gas fees by blockchain"""
+    """Create a 100% stacked bar chart of gas fees by blockchain"""
     # Define custom colors for each blockchain
     color_map = {
         'ETH': '#716b94',  # Ethereum blue
@@ -55,29 +55,43 @@ def create_transaction_fees_chart_relative(df):
         'TRX': '#FF0013',  # Avalanche red
         'SOL': '#14F195'  # Binance yellow
     }
-
+    
+    # Create a copy of the dataframe to avoid modifying the original
+    df_copy = df.copy()
+    
+    # Group by month and calculate the total gas fees for each month
+    monthly_totals = df_copy.groupby('month')['gas_fees'].sum().reset_index()
+    monthly_totals.rename(columns={'gas_fees': 'total_fees'}, inplace=True)
+    
+    # Merge the monthly totals back with the original dataframe
+    df_pct = pd.merge(df_copy, monthly_totals, on='month')
+    
+    # Calculate the percentage of each blockchain's gas fees relative to the total
+    df_pct['percentage'] = (df_pct['gas_fees'] / df_pct['total_fees']) * 100
+    
     fig = px.bar(
-        df,
+        df_pct,
         x='month',
-        y='gas_fees',
+        y='percentage',
         color='category',
-        title='Monthly Gas Fees by Blockchain',
+        title='Monthly Gas Fees by Blockchain (Percentage)',
         color_discrete_map=color_map,  # Add custom colors
         labels={
             'month': 'Month',
-            'gas_fees': 'Gas Fees',
+            'percentage': 'Percentage of Gas Fees',
             'category': 'Blockchain'
         }
     )
-
+    
     fig.update_layout(
-        barmode='relative',
+        barmode='stack',  # Use 'stack' for 100% chart
         xaxis_tickformat='%Y-%m',
-        yaxis_title='Gas Fees',
+        yaxis_title='Percentage of Gas Fees',
+        yaxis=dict(ticksuffix='%'),  # Add % suffix to y-axis
         legend_title='Blockchain',
         height=600
     )
-
+    
     return fig
 
 def display_metrics_and_table(df):
