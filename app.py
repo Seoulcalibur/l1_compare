@@ -8,7 +8,7 @@ warnings.filterwarnings('ignore')
 # Import functions from data.py
 import data
 
-def create_gas_fees_chart(df):
+def create_transaction_fees_chart_stack(df):
     """Create a bar chart of gas fees by blockchain"""
     # Define custom colors for each blockchain
     color_map = {
@@ -44,13 +44,47 @@ def create_gas_fees_chart(df):
 
     return fig
 
+def create_transaction_fees_chart_relative(df):
+    """Create a bar chart of gas fees by blockchain"""
+    # Define custom colors for each blockchain
+    color_map = {
+        'ETH': '#716b94',  # Ethereum blue
+        'AVAX': '#E84142',  # Polygon purple
+        'BTC': '#F7931A',  # Arbitrum blue
+        'BNB': '#F3BA2F',  # Optimism red
+        'TRX': '#FF0013',  # Avalanche red
+        'SOL': '#14F195'  # Binance yellow
+    }
+
+    fig = px.bar(
+        df,
+        x='month',
+        y='gas_fees',
+        color='category',
+        title='Monthly Gas Fees by Blockchain',
+        color_discrete_map=color_map,  # Add custom colors
+        labels={
+            'month': 'Month',
+            'gas_fees': 'Gas Fees',
+            'category': 'Blockchain'
+        }
+    )
+
+    fig.update_layout(
+        barmode='relative',
+        xaxis_tickformat='%Y-%m',
+        yaxis_title='Gas Fees',
+        legend_title='Blockchain',
+        height=600
+    )
+
+    return fig
 
 def display_metrics_and_table(df):
     """Display metrics and data table for the gas fees"""
     try:
         # Get total gas fees for each blockchain
-        blockchain_totals = df.groupby('category')['gas_fees'].sum().sort_values(
-            ascending=False)
+        blockchain_totals = df.groupby('category')['gas_fees'].sum().sort_values(ascending=False)
 
         # Create a column for each blockchain (up to the top 3 by total fees)
         cols = st.columns(min(3, len(blockchain_totals)))
@@ -65,7 +99,7 @@ def display_metrics_and_table(df):
                     )
 
         # Data table
-        st.subheader("🔍 Monthly Gas Fees by Blockchain")
+        st.subheader("🔍 Monthly Transaction Fees by Blockchain")
 
         # Pivot the dataframe to show categories as columns
         pivoted_df = df.pivot(
@@ -167,18 +201,18 @@ def get_sample_data():
 def main():
     # Set page config
     st.set_page_config(
-        page_title="Blockchain Tx Fee Comparison",
+        page_title="Blockchain Comparison Analysis",
         page_icon="📊",
         layout="wide"
     )
 
     # Add title
-    st.title("📊 Blockchain Tx Fee Comparison")
+    st.title("📊 Blockchain Comparison Analysis2")
 
     # Create tabs
     tab_icons = {
-        "L1 Transactions": "🏠",
-        "L1 Fees": "🔒"
+        "L1 Transaction Fees": "⛽",
+        "L1 Transactions Per Second": "⚡"
     }
 
     tabs = st.tabs([f"{tab_icons[tab]} {tab}" for tab in tab_icons.keys()])
@@ -192,7 +226,6 @@ def main():
             # Try different function names that might be in your data.py
             if hasattr(data, 'initialize_aws'):
                 data.initialize_aws()
-
             # Try different ways to get the data
             if hasattr(data, 'fetch_tx_fee'):
                 df = data.fetch_tx_fee()
@@ -223,7 +256,7 @@ def main():
 
         try:
             # Create and display chart
-            fig = create_gas_fees_chart(filtered_df)
+            fig = create_transaction_fees_chart_stack(filtered_df)
             st.plotly_chart(fig, use_container_width=True, key="transaction_fee_stack")
 
             # Display metrics and table
@@ -238,7 +271,7 @@ def main():
 
         try:
             # Create and display the same chart for now
-            fig = create_gas_fees_chart(filtered_df)
+            fig = create_transaction_fees_chart_relative(filtered_df)
             st.plotly_chart(fig, use_container_width=True, key="transaction_fee_relative")
 
             # Display metrics and table
