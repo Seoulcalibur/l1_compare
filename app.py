@@ -9,39 +9,48 @@ warnings.filterwarnings('ignore')
 import data
 
 def create_transaction_fees_chart_stack(df):
-    """Create a bar chart of gas fees by blockchain"""
+    """Create a bar chart of transaction fees by blockchain"""
+    # Create a copy of the dataframe to avoid modifying the original
+    df_copy = df.copy()
     # Define custom colors for each blockchain
     color_map = {
-        'ETH': '#716b94',  # Ethereum blue
-        'AVAX': '#E84142',  # Polygon purple
-        'BTC': '#F7931A',  # Arbitrum blue
-        'BNB': '#F3BA2F',  # Optimism red
-        'TRX': '#FF0013',  # Avalanche red
-        'SOL': '#14F195'  # Binance yellow
+        'ETH': '#716b94',
+        'AVAX': '#E84142',  
+        'BTC': '#F7931A',  
+        'BNB': '#F3BA2F',  
+        'TRX': '#FF0013',  
+        'SOL': '#14F195'  
     }
-
     fig = px.bar(
-        df,
+        df_copy,
         x='month',
         y='gas_fees',
         color='category',
-        title='Monthly Gas Fees by Blockchain',
+        title='Monthly Transaction Fees by Blockchain',
         color_discrete_map=color_map,  # Add custom colors
         labels={
             'month': 'Month',
-            'gas_fees': 'Gas Fees',
+            'gas_fees': 'Transaction Fees',
             'category': 'Blockchain'
         }
     )
-
+    
+    # Fix for tooltip format - using proper value formatting for transaction fees
+    fig.update_traces(
+        hovertemplate='<b>Blockchain</b>: %{customdata}<br>' +
+                      '<b>Month</b>: %{x|%b %Y}<br>' +
+                      '<b>Transaction Fees</b>: $%{y:,.2f}<extra></extra>',
+        customdata=df_copy['category']
+    )
+    
     fig.update_layout(
         barmode='stack',
         xaxis_tickformat='%Y-%m',
-        yaxis_title='Gas Fees',
+        yaxis_title='Transaction Fees',
         legend_title='Blockchain',
         height=600
     )
-
+    
     return fig
 
 def create_transaction_fees_chart_relative(df):
