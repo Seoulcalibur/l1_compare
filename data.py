@@ -14,12 +14,12 @@ logger = logging.getLogger(__name__)
 aws_access_key_id = None
 aws_secret_access_key = None
 aws_bucket_name = None
-aws_default_json_file = None
+aws_validator_file_name = None
 region_name = None
 s3_client = None
 
 
-def initialize_aws(access_key=None, secret_key=None, bucket=None, default_json_file=None, region=None):
+def initialize_aws(access_key=None, secret_key=None, bucket=None, validator_file=None, region='us-east-1'):
     """
     Initialize AWS configuration from provided parameters, Streamlit secrets, or environment variables
 
@@ -27,21 +27,22 @@ def initialize_aws(access_key=None, secret_key=None, bucket=None, default_json_f
         access_key (str, optional): AWS access key ID
         secret_key (str, optional): AWS secret access key
         bucket (str, optional): S3 bucket name
-        default_json_file (str, optional): Validator file name in S3
+        validator_file (str, optional): Validator file name in S3
         region (str, optional): AWS region name
     """
-    global aws_access_key_id, aws_secret_access_key, aws_bucket_name, aws_default_json_file, region_name, s3_client
+    global aws_access_key_id, aws_secret_access_key, aws_bucket_name, aws_validator_file_name, region_name, s3_client
 
     # Get credentials with priority: 1) function parameters 2) Streamlit secrets 3) environment variables
     if "aws" in st.secrets:
-        aws_access_key_id = st.secrets["aws"]["access_key_id"]
-        aws_secret_access_key = st.secrets["aws"]["secret_access_key"]
-        aws_bucket_name = st.secrets["aws"].get("bucket_name")
-        aws_default_json_file = default_json_file
-        region_name = st.secrets["aws"].get("region_name")
+        aws_access_key_id = access_key or st.secrets["aws"]["access_key_id"] or os.environ.get('AWS_ACCESS_KEY')
+        aws_secret_access_key = secret_key or st.secrets["aws"]["secret_access_key"] or os.environ.get('AWS_SECRET_KEY')
+        aws_bucket_name = bucket or st.secrets["aws"].get("bucket_name") or os.environ.get('AWS_BUCKET_NAME')
+        aws_validator_file_name = validator_file or st.secrets["aws"].get("validator_file_name") or os.environ.get(
+            'AWS_VALIDATOR_FILE_NAME')
+        region_name = region or st.secrets["aws"].get("region_name") or os.environ.get('AWS_REGION_NAME', 'us-east-1')
 
     if not aws_access_key_id or not aws_secret_access_key:
-        logger.warning("AWS secrets not found in Streamlit configuration")
+        logger.warning("AWS secrets not found in Streamlit configuration or environment variables")
 
     # Check if we have the required credentials
     if not aws_access_key_id or not aws_secret_access_key or not aws_bucket_name:
@@ -110,10 +111,10 @@ def fetch_json_data(file_name=None):
         return None
 
     if file_name is None:
-        if aws_default_json_file  is None:
+        if aws_validator_file_name is None:
             logger.error("No file name provided and no default validator file name set")
             return None
-        file_name = aws_default_json_file 
+        file_name = aws_validator_file_name
 
     response = fetch_s3_object(file_name)
     if response:
@@ -224,13 +225,13 @@ if __name__ == "__main__":
         print(f"Files in bucket: {files}")
 
         # Test fetching JSON data
-        if aws_default_json_file:
+        if aws_validator_file_name:
             json_data = fetch_json_data()
             if json_data:
-                print(f"Successfully fetched JSON data from {aws_default_json_file}")
+                print(f"Successfully fetched JSON data from {aws_validator_file_name}")
                 print(f"Data keys: {list(json_data.keys()) if isinstance(json_data, dict) else 'Not a dictionary'}")
             else:
-                print(f"Failed to fetch JSON data from {aws_default_json_file}")
+                print(f"Failed to fetch JSON data from {aws_validator_file_name}")
 
         # Test fetching transaction fee data
         tx_fee_data = fetch_tx_fee()
