@@ -239,7 +239,7 @@ def main():
         try:
             # Create and display the same chart for now
             fig = create_gas_fees_chart(filtered_df)
-            st.plotly_chart(fig, use_container_width=True, , key="transaction_fee_relative")
+            st.plotly_chart(fig, use_container_width=True, key="transaction_fee_relative")
 
             # Display metrics and table
             display_metrics_and_table(filtered_df)
