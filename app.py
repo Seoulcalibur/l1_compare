@@ -5,12 +5,11 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-# Import functions from data.py
+# Import data.py
 import data
 
 def create_transaction_fees_chart_stack(df):
-    """Create a bar chart of transaction fees by blockchain"""
-    # Create a copy of the dataframe to avoid modifying the original
+    """Bar chart of transaction fees by blockchain"""
     df_copy = df.copy()
     # Define custom colors for each blockchain
     color_map = {
@@ -35,11 +34,11 @@ def create_transaction_fees_chart_stack(df):
         }
     )
     
-    # Fix for tooltip format - using proper value formatting for transaction fees
+    # Tool Tip Formatting
     fig.update_traces(
         hovertemplate='<b>Blockchain</b>: %{customdata}<br>' +
                       '<b>Month</b>: %{x|%b %Y}<br>' +
-                      '<b>Transaction Fees</b>: $%{y:,.2f}<extra></extra>',
+                      '<b>Transaction Fees</b>: $%{y:,.0f}<extra></extra>',
         customdata=df_copy['category']
     )
     
@@ -54,18 +53,17 @@ def create_transaction_fees_chart_stack(df):
     return fig
 
 def create_transaction_fees_chart_relative(df):
-    """Create a 100% stacked bar chart of gas fees by blockchain"""
+    """100% stacked bar chart of transaction fees by blockchain"""
     # Define custom colors for each blockchain
     color_map = {
-        'ETH': '#716b94',  # Ethereum blue
-        'AVAX': '#E84142',  # Polygon purple
-        'BTC': '#F7931A',  # Arbitrum blue
-        'BNB': '#F3BA2F',  # Optimism red
-        'TRX': '#FF0013',  # Avalanche red
-        'SOL': '#14F195'  # Binance yellow
+        'ETH': '#716b94', 
+        'AVAX': '#E84142', 
+        'BTC': '#F7931A',  
+        'BNB': '#F3BA2F',  
+        'TRX': '#FF0013',  
+        'SOL': '#14F195' 
     }
     
-    # Create a copy of the dataframe to avoid modifying the original
     df_copy = df.copy()
     
     # Group by month and calculate the total gas fees for each month
@@ -75,7 +73,7 @@ def create_transaction_fees_chart_relative(df):
     # Merge the monthly totals back with the original dataframe
     df_pct = pd.merge(df_copy, monthly_totals, on='month')
     
-    # Calculate the percentage of each blockchain's gas fees relative to the total
+    # Calculate the percentage of each blockchain's transaction fees relative to the total
     df_pct['percentage'] = (df_pct['gas_fees'] / df_pct['total_fees']) * 100
     
     fig = px.bar(
@@ -98,12 +96,13 @@ def create_transaction_fees_chart_relative(df):
                    '<b>Percentage of Gas Fees</b>: %{y:.2f}%<extra></extra>',
     customdata=df_pct['category']
     )
-    
+
+    # Tool Tip Formatting
     fig.update_layout(
-        barmode='stack',  # Use 'stack' for 100% chart
+        barmode='stack', 
         xaxis_tickformat='%Y-%m',
         yaxis_title='Percentage of Gas Fees',
-        yaxis=dict(ticksuffix='%'),  # Add % suffix to y-axis
+        yaxis=dict(ticksuffix='%'), 
         legend_title='Blockchain',
         height=600
     )
@@ -285,15 +284,22 @@ def main():
         st.header("L1 Transaction Fees")
 
         try:
+            # Create container with custom padding
+            chart_container = st.container()
+
+            with chart_container:
             # Create and display chart
-            fig = create_transaction_fees_chart_stack(filtered_df)
-            st.plotly_chart(fig, use_container_width=True, key="transaction_fee_stack")
+                fig = create_transaction_fees_chart_stack(filtered_df)
+                st.plotly_chart(fig, use_container_width=True, key="transaction_fee_stack")
+                
+                # Add compact spacing between charts
+                st.markdown("<div style='margin-top: -40px;'></div>", unsafe_allow_html=True)
 
-            fig = create_transaction_fees_chart_relative(filtered_df)
-            st.plotly_chart(fig, use_container_width=True, key="transaction_fee_relative")
+                fig = create_transaction_fees_chart_relative(filtered_df)
+                st.plotly_chart(fig, use_container_width=True, key="transaction_fee_relative")
 
-            # Display metrics and table
-            display_metrics_and_table(filtered_df)
+                # Display metrics and table
+                display_metrics_and_table(filtered_df)
 
         except Exception as e:
             st.error(f"Error in L1 Transactions tab: {str(e)}")
