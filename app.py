@@ -273,6 +273,9 @@ def main():
             fig = create_transaction_fees_chart_stack(filtered_df)
             st.plotly_chart(fig, use_container_width=True, key="transaction_fee_stack")
 
+            fig = create_transaction_fees_chart_relative(filtered_df)
+            st.plotly_chart(fig, use_container_width=True, key="transaction_fee_relative")
+
             # Display metrics and table
             display_metrics_and_table(filtered_df)
 
