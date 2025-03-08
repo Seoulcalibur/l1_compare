@@ -293,7 +293,7 @@ def main():
                 st.plotly_chart(fig, use_container_width=True, key="transaction_fee_stack")
                 
                 # Add compact spacing between charts
-                st.markdown("<div style='margin-top: -160px;'></div>", unsafe_allow_html=True)
+                st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
 
                 fig = create_transaction_fees_chart_relative(filtered_df)
                 st.plotly_chart(fig, use_container_width=True, key="transaction_fee_relative")
