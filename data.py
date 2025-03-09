@@ -173,7 +173,7 @@ def fetch_tx_fee(json_file=None):
         logger.error("No JSON file name provided or set as default")
         return None
 
-      try:
+    try:
         data = fetch_json_data(json_file_to_use)
         if data:
             df = pd.DataFrame(data)
