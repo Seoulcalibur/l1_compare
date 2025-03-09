@@ -465,9 +465,9 @@ def main():
 
             # Fetch TPS data
             if hasattr(data, 'fetch_tps_data'):
-                df_tps = data.fetch_tps_data("DUNE_QUERY_111.json")  # Use your actual query ID
+                df_tps = data.fetch_tps_data("DUNE_QUERY_4660344.json")  # Use your actual query ID
             elif hasattr(data, 'fetch_json_data'):
-                df_tps = pd.DataFrame(data.fetch_json_data("DUNE_QUERY_111.json"))
+                df_tps = pd.DataFrame(data.fetch_json_data("DUNE_QUERY_4660344.json"))
             else:
                 st.warning("Could not find appropriate functions in data.py for TPS data.")
                 df_tps = None
