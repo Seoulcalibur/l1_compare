@@ -188,6 +188,38 @@ def fetch_tx_fee(json_file=None):
         logger.error(f"Error processing transaction fee data from {json_file_to_use}: {e}")
         return None
 
+def fetch_tps_data(json_file=None):
+    """
+    Fetch TPS data from specified JSON file
+    
+    Args:
+        json_file (str, optional): JSON file to use
+        
+    Returns:
+        pandas.DataFrame: DataFrame with block_date, blockchain, and tps columns
+    """
+    if s3_client is None:
+        logger.error("AWS not initialized. Call initialize_aws() first.")
+        return None
+    
+    if json_file is None:
+        logger.error("No JSON file name provided for TPS data")
+        return None
+        
+    try:
+        data = fetch_json_data(json_file)
+        if data:
+            df = pd.DataFrame(data)
+            if all(col in df.columns for col in ['block_date', 'blockchain', 'tps']):
+                return df[['block_date', 'blockchain', 'tps']]
+            else:
+                missing_cols = [col for col in ['block_date', 'blockchain', 'tps'] if col not in df.columns]
+                logger.error(f"Missing columns in TPS data from {json_file}: {missing_cols}")
+                return None
+        return None
+    except Exception as e:
+        logger.error(f"Error processing TPS data from {json_file}: {e}")
+        return None
 
 def list_bucket_files(prefix=''):
     """
