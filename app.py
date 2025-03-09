@@ -203,30 +203,30 @@ def apply_filters(df):
     return filtered_df
 
 
-# Function to generate sample data for testing
-def get_sample_data():
-    """Generate sample data when real data can't be accessed"""
-    import datetime as dt
-    import random
+# Function to generate sample data for testing - Only for Testing
+# def get_sample_data():
+#     """Generate sample data when real data can't be accessed"""
+#     import datetime as dt
+#     import random
 
-    data = []
-    categories = ['ETH', 'BTC', 'BNB', 'SOL', 'AVAX', 'TRX']
+#     data = []
+#     categories = ['ETH', 'BTC', 'BNB', 'SOL', 'AVAX', 'TRX']
 
-    # Generate sample data for the last 12 months
-    current_date = dt.datetime.now()
+#     # Generate sample data for the last 12 months
+#     current_date = dt.datetime.now()
 
-    for i in range(12):
-        month = current_date - dt.timedelta(days=30 * i)
-        for category in categories:
-            # Random gas fees between 1000 and 10000
-            gas_fee = random.randint(1000, 10000)
-            data.append({
-                'month': month.strftime('%Y-%m-%d'),
-                'category': category,
-                'gas_fees': gas_fee
-            })
+#     for i in range(12):
+#         month = current_date - dt.timedelta(days=30 * i)
+#         for category in categories:
+#             # Random gas fees between 1000 and 10000
+#             gas_fee = random.randint(1000, 10000)
+#             data.append({
+#                 'month': month.strftime('%Y-%m-%d'),
+#                 'category': category,
+#                 'gas_fees': gas_fee
+#             })
 
-    return pd.DataFrame(data)
+#     return pd.DataFrame(data)
 
 
 def main():
@@ -248,7 +248,7 @@ def main():
 
     tabs = st.tabs([f"{tab_icons[tab]} {tab}" for tab in tab_icons.keys()])
 
-    # Try to fetch data using the functions in data.py
+    # Fetch data using the functions in data.py
     try:
         with st.spinner('Fetching data...'):
             # Check if these functions exist in your data.py module
@@ -259,12 +259,12 @@ def main():
                 data.initialize_aws()
             # Try different ways to get the data
             if hasattr(data, 'fetch_tx_fee'):
-                df = data.fetch_tx_fee()
+                df = data.fetch_tx_fee("DUNE_QUERY_4667263.json")
             elif hasattr(data, 'fetch_json_data'):
                 df = pd.DataFrame(data.fetch_json_data("dune_query_4667263.json"))
             else:
                 st.warning("Could not find appropriate functions in data.py. Using sample data instead.")
-                df = get_sample_data()
+                ## df = get_sample_data() -- Only for Testing
 
             if df is None or df.empty:
                 st.warning("No data returned from data.py. Using sample data instead.")
