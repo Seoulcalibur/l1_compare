@@ -153,34 +153,39 @@ def fetch_csv_data(file_name):
     return None
 
 
-def fetch_tx_fee():
+def fetch_tx_fee(json_file=None):
     """
     Fetch transaction fee data
-
+    
+    Args:
+        json_file (str, optional): Specific JSON file name to use. If None, uses aws_json_file.
+        
     Returns:
         pandas.DataFrame or None: DataFrame with month, category, and gas_fees columns
     """
     if s3_client is None:
         logger.error("AWS not initialized. Call initialize_aws() first.")
         return None
+    
+    json_file_to_use = json_file
 
-    if aws_json_file is None:
-        logger.error("No JSON file name set")
+    if json_file_to_use is None:
+        logger.error("No JSON file name provided or set as default")
         return None
 
-    try:
-        data = fetch_json_data(aws_json_file)
+      try:
+        data = fetch_json_data(json_file_to_use)
         if data:
             df = pd.DataFrame(data)
             if all(col in df.columns for col in ['month', 'category', 'gas_fees']):
                 return df[['month', 'category', 'gas_fees']]
             else:
                 missing_cols = [col for col in ['month', 'category', 'gas_fees'] if col not in df.columns]
-                logger.error(f"Missing columns in data: {missing_cols}")
+                logger.error(f"Missing columns in data from {json_file_to_use}: {missing_cols}")
                 return None
         return None
     except Exception as e:
-        logger.error(f"Error processing transaction fee data: {e}")
+        logger.error(f"Error processing transaction fee data from {json_file_to_use}: {e}")
         return None
 
 
@@ -233,7 +238,7 @@ if __name__ == "__main__":
                 print(f"Failed to fetch JSON data from {aws_json_file}")
 
         # Test fetching transaction fee data
-        tx_fee_data = fetch_tx_fee()
+        tx_fee_data = fetch_tx_fee("DUNE_QUERY_4667263.json")
         if tx_fee_data is not None:
             print(f"Successfully fetched transaction fee data with shape: {tx_fee_data.shape}")
             print(tx_fee_data.head())
