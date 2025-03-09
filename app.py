@@ -274,7 +274,7 @@ def display_metrics_and_table_tps(df):
         latest_tps = df[df['block_date'] == latest_date].sort_values('tps', ascending=False)
         
         # Create a column for the top 3 blockchains by TPS
-        st.subheader("Top Blockchains by TPS")
+        st.subheader("Top 3 Blockchains by TPS")
         cols = st.columns(min(3, len(latest_tps)))
         
         # Display metrics for top 3 blockchains
@@ -283,15 +283,22 @@ def display_metrics_and_table_tps(df):
                 with cols[idx]:
                     st.metric(
                         f"{row['blockchain'].title()}",
-                        f"{row['tps']:,.1f} TPS"
+                        f"{row['tps']:,.0f} TPS"
                     )
         
         # Data table
         st.subheader("🔍 Transactions Per Second by Blockchain")
+
+        # Create a year-month column for grouping
+        df['year_month'] = df['block_date'].dt.strftime('%Y-%m')
+
+        # Filter for only the specified blockchains
+        selected_blockchains = ['Ethereum', 'BNB', 'Solana', 'Bitcoin', 'Avalanche', 'TRX']
+        filtered_df = df[df['blockchain'].str.lower().isin([b.lower() for b in selected_blockchains])]
         
         # Pivot the dataframe to show blockchains as columns
-        pivoted_df = df.pivot_table(
-            index='block_date',
+        pivoted_df = filtered_df.pivot_table(
+            index='year_month',
             columns='blockchain',
             values='tps',
             aggfunc='mean'  # In case there are multiple entries for same date/blockchain
@@ -301,7 +308,7 @@ def display_metrics_and_table_tps(df):
         pivoted_df = pivoted_df.sort_index(ascending=False)
         
         # Rename the index
-        pivoted_df.index.name = 'Date'
+        pivoted_df.index.name = 'Month'
         
         # Format and display the table
         st.dataframe(
