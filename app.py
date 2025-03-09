@@ -214,21 +214,21 @@ def create_tps_chart(df):
     
     # Define custom colors for each blockchain
     color_map = {
-        'solana': '#14F195',    # Bright green
-        'tron': '#FF0013',      # Red
-        'ethereum': '#716b94',  # Purple-blue
-        'bitcoin': '#F7931A',   # Orange
-        'base': '#0052FF',      # Blue
-        'arbitrum': '#28A0F0',  # Light blue
-        'optimism': '#FF0420',  # Bright red
-        'ton': '#0098EA',       # Blue
-        'linea': '#5F6FFF',     # Blue-purple
-        'zksync': '#8E55FF',    # Purple
-        'celo': '#FCFF52',      # Yellow
-        'sei': '#FF00FF',       # Magenta
-        'zkevm': '#6A00EA',     # Dark purple
-        'scroll': '#FFA4E3',    # Pink
-        'zora': '#A1723A'       # Brown
+        'solana': '#14F195',   
+        'tron': '#FF0013',      
+        'ethereum': '#716b94',  
+        'bitcoin': '#F7931A',   
+        'base': '#0052FF',      
+        'arbitrum': '#28A0F0',
+        'optimism': '#FF0420',  
+        'ton': '#0098EA',       
+        'linea': '#5F6FFF',    
+        'zksync': '#8E55FF',   
+        'celo': '#FCFF52',      
+        'sei': '#FF00FF',       
+        'zkevm': '#6A00EA',     
+        'scroll': '#FFA4E3',    
+        'zora': '#A1723A'       
     }
     
     # Create line chart
@@ -248,15 +248,16 @@ def create_tps_chart(df):
     
     # Format tooltip
     fig.update_traces(
-        hovertemplate='<b>%{customdata}</b><br>' +
-                      '<b>Date</b>: %{x|%b %d, %Y}<br>' +
-                      '<b>TPS</b>: %{y:,.1f}<extra></extra>',
+        hovertemplate='<b>Blockchain</b>: %{customdata}<br>' +
+                      '<b>Month</b>: %{x|%b %Y}<br>' +
+                      '<b>Transactions Per Second</b>: %{y:,.0f}<extra></extra>',
         customdata=df_copy['blockchain']
     )
     
     # Update layout
     fig.update_layout(
-        xaxis_title='Date',
+        xaxis_title='Month',
+        xaxis_tickformat='%Y-%m',  # Format x-axis ticks as YYYY-MM
         yaxis_title='Transactions Per Second',
         legend_title='Blockchain',
         height=600,
