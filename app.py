@@ -313,7 +313,7 @@ def display_metrics_and_table_tps(df):
         # Format and display the table
         st.dataframe(
             pivoted_df.style
-            .format('{:,.1f}')
+            .format('{:,.0f}')
             .set_properties(**{
                 'text-align': 'right',
                 'font-family': 'monospace'
