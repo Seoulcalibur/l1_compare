@@ -253,12 +253,11 @@ def create_tps_chart(df):
     )
     
     # Format tooltip
-    fig.update_traces(
-        hovertemplate='<b>Blockchain</b>: %{customdata}<br>' +
-                      '<b>Month</b>: %{x|%b %Y}<br>' +
-                      '<b>Transactions Per Second</b>: %{y:,.0f}<extra></extra>',
-        customdata=df_copy['blockchain']
-    )
+    for i, trace in enumerate(fig.data):
+        blockchain_name = trace.name  # The trace name is the blockchain name
+        fig.data[i].hovertemplate = '<b>Blockchain</b>: ' + blockchain_name + '<br>' + \
+                                   '<b>Month</b>: %{x|%b %Y}<br>' + \
+                                   '<b>Transactions Per Second</b>: %{y:,.0f}<extra></extra>'
     
     # Update layout for dark theme and proper formatting
     fig.update_layout(
