@@ -509,16 +509,23 @@ def main():
         st.header("L1 Gas Fees")
 
         try:
-            # Create and display the same chart for now
-            fig = create_transaction_fees_chart_relative(filtered_df)
-            st.plotly_chart(fig, use_container_width=True, key="transaction_fee_relative")
+            if df_tps is not None and not df_tps.empty:
+                # Apply filters
+                filtered_df_tps = apply_filters_tps(df_tps)
+                
+                if not filtered_df_tps.empty:
+                    # Create and display chart
+                    fig = create_tps_chart(filtered_df_tps)
+                    st.plotly_chart(fig, use_container_width=True, key="tps_chart")
 
-            # Display metrics and table
-            display_metrics_and_table_transaction_fees(filtered_df)
-
+                    # Display metrics and table
+                    display_metrics_and_table_tps(filtered_df_tps)
+                else:
+                    st.warning("No TPS data available for the selected filters.")
+            else:
+                st.warning("No TPS data available to display.")
         except Exception as e:
-            st.error(f"Error in L1 Fees tab: {str(e)}")
-
+            st.error(f"Error in L1 Transactions Per Second tab: {str(e)}")
 
 if __name__ == '__main__':
     main()
