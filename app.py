@@ -8,6 +8,7 @@ warnings.filterwarnings('ignore')
 # Import data.py
 import data
 
+# Transaction Fees
 def create_transaction_fees_chart_stack(df):
     """Bar chart of transaction fees by blockchain"""
     df_copy = df.copy()
@@ -202,6 +203,203 @@ def apply_filters(df):
 
     return filtered_df
 
+## Transactions Per Seconds
+def create_tps_chart(df):
+    """Create a line chart of transactions per second by blockchain"""
+    df_copy = df.copy()
+    
+    # Ensure date is in datetime format
+    if not pd.api.types.is_datetime64_any_dtype(df_copy['block_date']):
+        df_copy['block_date'] = pd.to_datetime(df_copy['block_date'])
+    
+    # Define custom colors for each blockchain
+    color_map = {
+        'solana': '#14F195',    # Bright green
+        'tron': '#FF0013',      # Red
+        'ethereum': '#716b94',  # Purple-blue
+        'bitcoin': '#F7931A',   # Orange
+        'base': '#0052FF',      # Blue
+        'arbitrum': '#28A0F0',  # Light blue
+        'optimism': '#FF0420',  # Bright red
+        'ton': '#0098EA',       # Blue
+        'linea': '#5F6FFF',     # Blue-purple
+        'zksync': '#8E55FF',    # Purple
+        'celo': '#FCFF52',      # Yellow
+        'sei': '#FF00FF',       # Magenta
+        'zkevm': '#6A00EA',     # Dark purple
+        'scroll': '#FFA4E3',    # Pink
+        'zora': '#A1723A'       # Brown
+    }
+    
+    # Create line chart
+    fig = px.line(
+        df_copy,
+        x='block_date',
+        y='tps',
+        color='blockchain',
+        title='Transactions Per Second (TPS) by Blockchain',
+        color_discrete_map=color_map,
+        labels={
+            'block_date': 'Date',
+            'tps': 'Transactions Per Second',
+            'blockchain': 'Blockchain'
+        }
+    )
+    
+    # Format tooltip
+    fig.update_traces(
+        hovertemplate='<b>%{customdata}</b><br>' +
+                      '<b>Date</b>: %{x|%b %d, %Y}<br>' +
+                      '<b>TPS</b>: %{y:,.1f}<extra></extra>',
+        customdata=df_copy['blockchain']
+    )
+    
+    # Update layout
+    fig.update_layout(
+        xaxis_title='Date',
+        yaxis_title='Transactions Per Second',
+        legend_title='Blockchain',
+        height=600,
+        hovermode="closest"
+    )
+    
+    return fig
+
+def display_metrics_and_table_tps(df):
+    """Display metrics and data table for TPS data"""
+    try:
+        # Get latest TPS for each blockchain
+        latest_date = df['block_date'].max()
+        latest_tps = df[df['block_date'] == latest_date].sort_values('tps', ascending=False)
+        
+        # Create a column for the top 3 blockchains by TPS
+        st.subheader("Top Blockchains by TPS")
+        cols = st.columns(min(3, len(latest_tps)))
+        
+        # Display metrics for top 3 blockchains
+        for idx, (_, row) in enumerate(latest_tps.head(3).iterrows()):
+            if idx < 3:  # Show only top 3
+                with cols[idx]:
+                    st.metric(
+                        f"{row['blockchain'].title()}",
+                        f"{row['tps']:,.1f} TPS"
+                    )
+        
+        # Data table
+        st.subheader("🔍 Transactions Per Second by Blockchain")
+        
+        # Pivot the dataframe to show blockchains as columns
+        pivoted_df = df.pivot_table(
+            index='block_date',
+            columns='blockchain',
+            values='tps',
+            aggfunc='mean'  # In case there are multiple entries for same date/blockchain
+        )
+        
+        # Sort the index by date (descending)
+        pivoted_df = pivoted_df.sort_index(ascending=False)
+        
+        # Rename the index
+        pivoted_df.index.name = 'Date'
+        
+        # Format and display the table
+        st.dataframe(
+            pivoted_df.style
+            .format('{:,.1f}')
+            .set_properties(**{
+                'text-align': 'right',
+                'font-family': 'monospace'
+            })
+            .set_table_styles([
+                {'selector': 'th', 'props': [('min-width', '100px'), ('max-width', '200px')]},
+                {'selector': 'td', 'props': [('min-width', '100px'), ('max-width', '200px')]},
+                {'selector': 'th.col_heading', 'props': [('text-align', 'right')]},
+                {'selector': 'th.row_heading', 'props': [('text-align', 'left')]},
+                {'selector': '', 'props': [('width', '100%')]}
+            ]),
+            width=1200,  # Overall table width
+            height=600  # Overall table height
+        )
+        
+    except Exception as e:
+        st.error(f"Error displaying TPS statistics: {str(e)}")
+
+def apply_filters_tps(df):
+    """Apply user-selected filters to the TPS dataframe"""
+    # Process data
+    if not pd.api.types.is_datetime64_any_dtype(df['block_date']):
+        df['block_date'] = pd.to_datetime(df['block_date'])
+    
+    # Sidebar filters (we'll reuse the existing sidebar section)
+    # Date filter
+    min_date = df['block_date'].min()
+    max_date = df['block_date'].max()
+    
+    # Get existing date range if it exists, otherwise set new one
+    if 'date_range' in st.session_state:
+        date_range = st.session_state.date_range
+    else:
+        date_range = st.sidebar.date_input(
+            "Select Date Range",
+            value=(min_date.date(), max_date.date()),
+            min_value=min_date.date(),
+            max_value=max_date.date(),
+            key="tps_date_range"
+        )
+    
+    # Category filter for blockchains
+    blockchains = sorted(df['blockchain'].unique())
+    
+    # Get existing selected categories if they exist, otherwise set new ones
+    if 'selected_blockchains' in st.session_state:
+        selected_blockchains = st.session_state.selected_blockchains
+    else:
+        selected_blockchains = st.sidebar.multiselect(
+            "Select Blockchains",
+            options=blockchains,
+            default=blockchains,
+            key="tps_blockchains"
+        )
+    
+    # Filter data
+    mask = (df['block_date'].dt.date >= date_range[0]) & (df['block_date'].dt.date <= date_range[1])
+    filtered_df = df[mask]
+    filtered_df = filtered_df[filtered_df['blockchain'].isin(selected_blockchains)]
+    
+    return filtered_df
+
+def fetch_tps_data(json_file=None):
+    """
+    Fetch TPS data from specified JSON file
+    
+    Args:
+        json_file (str, optional): JSON file to use
+        
+    Returns:
+        pandas.DataFrame: DataFrame with block_date, blockchain, and tps columns
+    """
+    if s3_client is None:
+        logger.error("AWS not initialized. Call initialize_aws() first.")
+        return None
+    
+    try:
+        # Use specified file
+        if json_file is None:
+            logger.error("No JSON file name provided for TPS data")
+            return None
+            
+        data = fetch_json_data(json_file)
+        if data:
+            df = pd.DataFrame(data)
+            if all(col in df.columns for col in ['block_date', 'blockchain', 'tps']):
+                return df[['block_date', 'blockchain', 'tps']]
+            else:
+                missing_cols = [col for col in ['block_date', 'blockchain', 'tps'] if col not in df.columns]
+                logger.error(f"Missing columns in TPS data from {json_file}: {missing_cols}")
+                return None
+        return None
+    except Exception as e:
+        logger.error(f"Error processing TPS data from {json_file}: {e}")
 
 # Function to generate sample data for testing - ONLY FOR TESTING
 # def get_sample_data():
