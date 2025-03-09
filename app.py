@@ -203,7 +203,7 @@ def apply_filters(df):
     return filtered_df
 
 
-# Function to generate sample data for testing - Only for Testing
+# Function to generate sample data for testing - ONLY FOR TESTING
 # def get_sample_data():
 #     """Generate sample data when real data can't be accessed"""
 #     import datetime as dt
@@ -259,25 +259,25 @@ def main():
                 data.initialize_aws()
             # Try different ways to get the data
             if hasattr(data, 'fetch_tx_fee'):
-                df = data.fetch_tx_fee("DUNE_QUERY_4667263.json")
+                df_tx_fee = data.fetch_tx_fee("DUNE_QUERY_4667263.json")
             elif hasattr(data, 'fetch_json_data'):
-                df = pd.DataFrame(data.fetch_json_data("dune_query_4667263.json"))
+                df_tx_fee = pd.DataFrame(data.fetch_json_data("dune_query_4667263.json"))
             else:
                 st.warning("Could not find appropriate functions in data.py. Using sample data instead.")
-                ## df = get_sample_data() -- Only for Testing
+                ## df_tx_fee = get_sample_data() -- ONLY FOR TESTING
 
-            if df is None or df.empty:
+            if df_tx_fee is None or df_tx_fee.empty:
                 st.warning("No data returned from data.py. Using sample data instead.")
-                df = get_sample_data()
+                #df_tx_fee = get_sample_data() -- ONLY FOR TESTING
     except Exception as e:
         st.error(f"Error accessing data: {str(e)}")
         st.info("Using sample data for demonstration")
-        df = get_sample_data()
+        ##df = get_sample_data()
 
     # Apply filters (common for both tabs)
-    filtered_df = apply_filters(df)
+    filtered_df_tx_fee = apply_filters(df_tx_fee)
 
-    if filtered_df.empty:
+    if filtered_df_tx_fee.empty:
         st.warning("No data available for the selected filters.")
         return
 
@@ -291,17 +291,17 @@ def main():
 
             with chart_container:
             # Create and display chart
-                fig = create_transaction_fees_chart_stack(filtered_df)
+                fig = create_transaction_fees_chart_stack(filtered_df_tx_fee)
                 st.plotly_chart(fig, use_container_width=True, key="transaction_fee_stack")
                 
                 # Add compact spacing between charts
                 st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
 
-                fig = create_transaction_fees_chart_relative(filtered_df)
+                fig = create_transaction_fees_chart_relative(filtered_df_tx_fee)
                 st.plotly_chart(fig, use_container_width=True, key="transaction_fee_relative")
 
                 # Display metrics and table
-                display_metrics_and_table_transaction_fees(filtered_df)
+                display_metrics_and_table_transaction_fees(filtered_df_tx_fee)
 
         except Exception as e:
             st.error(f"Error in L1 Transactions tab: {str(e)}")
