@@ -214,21 +214,27 @@ def create_tps_chart(df):
     
     # Define custom colors for each blockchain
     color_map = {
-        'solana': '#14F195',   
-        'tron': '#FF0013',      
-        'ethereum': '#716b94',  
-        'bitcoin': '#F7931A',   
-        'base': '#0052FF',      
-        'arbitrum': '#28A0F0',
-        'optimism': '#FF0420',  
-        'ton': '#0098EA',       
-        'linea': '#5F6FFF',    
-        'zksync': '#8E55FF',   
-        'celo': '#FCFF52',      
-        'sei': '#FF00FF',       
-        'zkevm': '#6A00EA',     
-        'scroll': '#FFA4E3',    
-        'zora': '#A1723A'       
+        'Solana': '#14F195',   
+        'Tron': '#FF0013',      
+        'Ethereum': '#716b94',  
+        'Bitcoin': '#F7931A',   
+        'Base': '#0052FF',      
+        'Arbitrum': '#28A0F0',
+        'Optimism': '#FF0420',  
+        'Ton': '#0098EA',       
+        'Linea': '#5F6FFF',    
+        'Zksync': '#8E55FF',   
+        'Celo': '#FCFF52',      
+        'Sei': '#FF00FF',       
+        'Zkevm': '#6A00EA',     
+        'Scroll': '#FFA4E3',    
+        'Zora': '#A1723A',
+        'Avalanche': '#E84142',
+        'Mantle': '#000000',
+        'Gnosis': '#3665FF',
+        'Fantom': '#1969FF',
+        'Ronin': '#7B19FF',
+        'Polygon': '#8247E5'
     }
     
     # Create line chart
@@ -254,14 +260,16 @@ def create_tps_chart(df):
         customdata=df_copy['blockchain']
     )
     
-    # Update layout
+    # Update layout for dark theme and proper formatting
     fig.update_layout(
-        xaxis_title='Month',
-        xaxis_tickformat='%Y-%m',  # Format x-axis ticks as YYYY-MM
+        xaxis_title='Date',
         yaxis_title='Transactions Per Second',
         legend_title='Blockchain',
         height=600,
-        hovermode="closest"
+        hovermode="closest",
+        template="plotly_dark",  # Use dark theme to match screenshot
+        plot_bgcolor='rgba(0,0,0,0)',  # Transparent background
+        paper_bgcolor='rgba(0,0,0,0)'  # Transparent paper
     )
     
     return fig
