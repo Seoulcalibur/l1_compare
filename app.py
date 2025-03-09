@@ -449,24 +449,36 @@ def main():
     # Fetch data using the functions in data.py
     try:
         with st.spinner('Fetching data...'):
-            # Check if these functions exist in your data.py module
-            # and use the ones that match your actual implementation
-
-            # Try different function names that might be in your data.py
+            # Initialize AWS
             if hasattr(data, 'initialize_aws'):
                 data.initialize_aws()
-            # Try different ways to get the data
+                
+            # Fetch transaction fee data
             if hasattr(data, 'fetch_tx_fee'):
                 df_tx_fee = data.fetch_tx_fee("DUNE_QUERY_4667263.json")
             elif hasattr(data, 'fetch_json_data'):
-                df_tx_fee = pd.DataFrame(data.fetch_json_data("dune_query_4667263.json"))
+                df_tx_fee = pd.DataFrame(data.fetch_json_data("DUNE_QUERY_4667263.json"))
             else:
-                st.warning("Could not find appropriate functions in data.py. Using sample data instead.")
+                st.warning("Could not find appropriate functions in data.py for transaction fees.")
+                df_tx_fee = None
                 ## df_tx_fee = get_sample_data() -- ONLY FOR TESTING
 
+            # Fetch TPS data
+            if hasattr(data, 'fetch_tps_data'):
+                df_tps = data.fetch_tps_data("DUNE_QUERY_111.json")  # Use your actual query ID
+            elif hasattr(data, 'fetch_json_data'):
+                df_tps = pd.DataFrame(data.fetch_json_data("DUNE_QUERY_111.json"))
+            else:
+                st.warning("Could not find appropriate functions in data.py for TPS data.")
+                df_tps = None
+                
+            # Check if data was returned
             if df_tx_fee is None or df_tx_fee.empty:
-                st.warning("No data returned from data.py. Using sample data instead.")
-                #df_tx_fee = get_sample_data() -- ONLY FOR TESTING
+                st.warning("No transaction fee data returned.")
+                
+            if df_tps is None or df_tps.empty:
+                st.warning("No TPS data returned.")
+    
     except Exception as e:
         st.error(f"Error accessing data: {str(e)}")
         st.info("Using sample data for demonstration")
@@ -506,7 +518,7 @@ def main():
 
     # Tab 2: L1 Fees (same content as placeholder)
     with tabs[1]:
-        st.header("L1 Gas Fees")
+        st.header("⚡ L1 Transactions Per Second")
 
         try:
             if df_tps is not None and not df_tps.empty:
