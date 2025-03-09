@@ -38,7 +38,6 @@ def initialize_aws(access_key=None, secret_key=None, bucket=None, json_file=None
         aws_secret_access_key = st.secrets["aws"]["secret_access_key"]
         aws_bucket_name = st.secrets["aws"].get("bucket_name")
         aws_json_file = st.secrets["aws"].get("json_file_name")
-            'aws_json_file')
         region_name = st.secrets["aws"].get("region_name")
 
     if not aws_access_key_id or not aws_secret_access_key:
