@@ -211,7 +211,12 @@ def fetch_tps_data(json_file=None):
         if data:
             df = pd.DataFrame(data)
             if all(col in df.columns for col in ['block_date', 'blockchain', 'tps']):
-                return df[['block_date', 'blockchain', 'tps']]
+                result_df = df[['block_date', 'blockchain', 'tps']]
+                result_df['blockchain'] = result_df['blockchain'].apply(
+                    lambda x: 'Avalanche' if x.lower() == 'avalanche_c' or x.lower() == 'avalanche' 
+                              else x.title()
+                )
+                return result_df
             else:
                 missing_cols = [col for col in ['block_date', 'blockchain', 'tps'] if col not in df.columns]
                 logger.error(f"Missing columns in TPS data from {json_file}: {missing_cols}")
